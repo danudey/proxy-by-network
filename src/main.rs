@@ -12,7 +12,6 @@ use toml::Table;
 
 use log::{error, info, LevelFilter};
 use systemd_journal_logger::JournalLog;
-use env_logger::Builder;
 
 use crate::network_manager::NetworkManagerProxy;
 use crate::active_connections::ActiveConnectionProxy;
@@ -54,14 +53,13 @@ fn get_config(network_id: String) -> Result<(), Box<dyn std::error::Error>> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-
     if std::io::stdout().is_terminal() {
-        let mut builder = Builder::new();
-        builder.default_format()
+        colog::default_builder()
+        .default_format()
         .format_timestamp(None)
         .filter_level(LevelFilter::Debug)
         .init();
-    } else {    
+    } else {
         JournalLog::new()
             .unwrap()
             .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
