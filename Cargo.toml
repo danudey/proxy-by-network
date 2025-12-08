@@ -1,0 +1,15 @@
+[package]
+name = "proxy-by-network"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# bus = "0.9"
+zbus = { version = "5.12.0", default-features = false, features = ["tokio"] }
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.145"
+getset = "0.1.6"
+xdg = "3.0.0"
