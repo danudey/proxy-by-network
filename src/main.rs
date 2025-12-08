@@ -1,9 +1,5 @@
-#[macro_use]
-extern crate log;
-
 mod network_manager;
-mod activeconnections;
-mod dbus;
+mod active_connections;
 
 use zbus::Connection;
 
@@ -19,7 +15,7 @@ use systemd_journal_logger::JournalLog;
 use env_logger::Builder;
 
 use crate::network_manager::NetworkManagerProxy;
-use crate::activeconnections::ActiveConnectionProxy;
+use crate::active_connections::ActiveConnectionProxy;
 
 fn get_config(network_id: String) -> Result<(), Box<dyn std::error::Error>> {
     let xdg_dirs = xdg::BaseDirectories::with_prefix("net.cdslash.proxy-by-net");
@@ -65,7 +61,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .format_timestamp(None)
         .filter_level(LevelFilter::Debug)
         .init();
-    } else {
+    } else {    
         JournalLog::new()
             .unwrap()
             .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
