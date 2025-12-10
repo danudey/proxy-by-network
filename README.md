@@ -21,12 +21,14 @@ cargo build --release
 ```
 
 ## Run
-Needs a config file in `~/.config/net.cdslash.proxy-by-net/config.toml` that looks like this:
+Needs a config file that looks like this:
 
 ```toml
 ["Network Name"]
 http = "http://10.0.0.1:3142/"
 ```
+
+It will first check `~/.config/net.cdslash.proxy-by-net/config.toml`; if that file doesn't exist, it will check `/etc/proxy-by-network.toml`.
 
 Remember to put quotes around your network name if it has spaces in it, or maybe always.
 
@@ -45,6 +47,8 @@ If you want to use this to automatically provide apt with an apt proxy configura
 ```
 Acquire::http::Proxy-Auto-Detect "/some/path/to/proxy-by-network";
 ```
+
+Apt will pass the proxy URL to the program on the command-line, but currently we don't do anything with it, e.g. filtering based on the URL. We just return the same proxy for everything.
 
 ## Reference
 
