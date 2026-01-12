@@ -1,38 +1,35 @@
-mod network_manager;
 mod active_connections;
+mod network_manager;
 
 use zbus::Connection;
 
-use std::io::Read;
 use std::fs::OpenOptions;
-use std::process::exit;
 use std::io::IsTerminal;
+use std::io::Read;
+use std::process::exit;
 
 use toml::Table;
 
-use log::{error, info, LevelFilter};
+use log::{LevelFilter, error, info};
 use systemd_journal_logger::JournalLog;
 
-use crate::network_manager::NetworkManagerProxy;
 use crate::active_connections::ActiveConnectionProxy;
+use crate::network_manager::NetworkManagerProxy;
 
-const CONFIG_FILE_GLOBAL: &str ="/etc/proxy-by-network.toml";
+const CONFIG_FILE_GLOBAL: &str = "/etc/proxy-by-network.toml";
 
 fn get_config(network_id: String) -> Result<(), Box<dyn std::error::Error>> {
     let xdg_dirs = xdg::BaseDirectories::with_prefix("net.cdslash.proxy-by-net");
 
     let config_path_user = xdg_dirs
-        .place_config_file("config.toml").unwrap_or("".into());
+        .place_config_file("config.toml")
+        .unwrap_or("".into());
     let mut config_data = String::new();
 
     // let config_file_paths = [config_path, "/etc/proxy-by-network.toml"];
 
-    let config_file_user = OpenOptions::new()
-            .read(true)
-            .open(config_path_user.clone());
-    let config_file_global = OpenOptions::new()
-            .read(true)
-            .open(CONFIG_FILE_GLOBAL);
+    let config_file_user = OpenOptions::new().read(true).open(config_path_user.clone());
+    let config_file_global = OpenOptions::new().read(true).open(CONFIG_FILE_GLOBAL);
 
     let mut config_file = if config_file_user.is_ok() {
         info!("Loading config file {}", config_path_user.to_str().unwrap());
@@ -68,19 +65,19 @@ fn get_config(network_id: String) -> Result<(), Box<dyn std::error::Error>> {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if std::io::stdout().is_terminal() {
         colog::default_builder()
-        .default_format()
-        .format_timestamp(None)
-        .filter_level(LevelFilter::Debug)
-        .init();
+            .default_format()
+            .format_timestamp(None)
+            .filter_level(LevelFilter::Debug)
+            .init();
     } else {
         JournalLog::new()
             .unwrap()
             .with_extra_fields(vec![("VERSION", env!("CARGO_PKG_VERSION"))])
             .with_syslog_identifier(env!("CARGO_PKG_NAME").to_string())
-            .install().unwrap();
+            .install()
+            .unwrap();
         log::set_max_level(LevelFilter::Debug);
     }
-
 
     let connection = Connection::system().await?;
     let network_manager = NetworkManagerProxy::new(&connection).await?;
@@ -95,5 +92,4 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     drop(ac);
 
     get_config(network_id)
-
 }
